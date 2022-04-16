@@ -2,8 +2,27 @@
     color: black;
 }
 
+.container-canvas {
+    width: 850px;
+    height: 650px;
+    position: relative;
+    display: block;
+}
+
 canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     height: 600px;
-    width: 800px;
+    width: 800px; 
     border: 5px solid black;
+}
+
+#canvas-overlay {
+    z-index: 1;
+}
+
+#canvas-hidden {
+    visibility: hidden;
+    z-index: 0;
 }
