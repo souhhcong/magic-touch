@@ -33,10 +33,15 @@
 // }
 
 //Mouse
-const canvasElement = document.querySelector('canvas');
+const canvasElement = document.querySelector('#canvas-overlay');
 const ctx = canvasElement.getContext('2d');
 ctx.canvas.width = 800;
 ctx.canvas.height = 600;
+
+const hiddenCanvasElement = document.querySelector('#canvas-hidden');
+const hidden_ctx = hiddenCanvasElement.getContext('2d');
+hidden_ctx.canvas.width = 800;
+hidden_ctx.canvas.height = 600;
 
 let is_down = 0;
 let cur_x = 0;
@@ -49,18 +54,35 @@ canvasElement.addEventListener('mousemove', mouseMove);
 //canvasElement.addEventListener('mouseout', mouseUp);
 let images = []
 
+function fadeOut() {
+    let cnt = 0
+    let curTimeOut = 0
+    function run () {
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        cnt++;
+        if (cnt >= 8) {return}
+        curTimeOut = setTimeout(run,200);
+    }
+    curTimeOut = setTimeout(run,200);
+}
+
 function mouseDown(event) {
     is_down = 1;
     cur_x = event.offsetX;
     cur_y = event.offsetY;
     ctx.beginPath();
     ctx.lineWidth = cur_width;
+
+    hidden_ctx.beginPath();
+    hidden_ctx.lineWidth = cur_width;
 }
 
 function mouseUp(event) {
     is_down = 0;
     ctx.closePath();
-    let image = canvasElement.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    hidden_ctx.closePath();
+    let image = hiddenCanvasElement.toDataURL("image/png").replace("image/png", "image/octet-stream");
     //console.log(image)
     // if (!localStorage.images)
     //     localStorage.images = [];
@@ -68,10 +90,12 @@ function mouseUp(event) {
     console.log(images)
     for (im of images) {
         display = document.createElement("img")
+        display.display = "block"
         display.src = im
         document.body.append(display)
     }
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    hidden_ctx.clearRect(0, 0, hidden_ctx.canvas.width, hidden_ctx.canvas.height);
+    fadeOut()
 }
 
 function mouseMove(event) {
@@ -79,6 +103,8 @@ function mouseMove(event) {
         //ctx.moveTo(cur_x,cur_y);
         ctx.lineTo(event.offsetX, event.offsetY)
         ctx.stroke()
+        hidden_ctx.lineTo(event.offsetX, event.offsetY)
+        hidden_ctx.stroke()
         cur_x = event.offsetX
         cur_y = event.offsetY
     }
