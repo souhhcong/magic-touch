@@ -109,3 +109,49 @@ function mouseMove(event) {
         cur_y = event.offsetY
     }
 }
+
+
+function randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+const radius = 50;  // Radius of the circle
+let y = 0;          // height (/vertical) of the circle within the viewport
+let circleArray = []
+let start_button = document.querySelector(".start-button")
+start_button.addEventListener('click', startGame);
+
+function startGame(event) {
+    setInterval(createCircle, 2000)
+    requestAnimationFrame( frame )
+}
+
+function createCircle(event) {
+  const x = randomInteger(0, ctx.canvas.width);
+  const y = 0;
+  let circle = document.createElement('div')
+  circle.setAttribute('id', circleArray.length)
+  circle.classList.add('circle')
+  circle.style.top = `${y}px`;
+  circle.style.left = `${x-radius}px`;
+  circle.style.zIndex = '2';
+  container = document.querySelector(".container-canvas")
+  container.appendChild(circle);
+
+  circleArray.push(circle)
+}
+
+
+function frame(currentTime) {
+    let circleElements = document.querySelectorAll('.circle');
+    for (circle of circleElements) {
+        let curY = circle.style.top.replace(/\D/g, "");
+        if (parseInt(curY) + 2*radius > ctx.canvas.height) {
+            container = document.querySelector(".container-canvas")
+            container.removeChild(circle);
+            break
+        }
+        circle.style.top = `${parseInt(curY)+2}px`;
+    }
+    requestAnimationFrame( frame )
+}
