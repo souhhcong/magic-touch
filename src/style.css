@@ -1,6 +1,7 @@
 .start-button {
-    width: 300px;
-    height: 200px;
+    width: 100px;
+    height: 20px;
+    background-color: lightgray;
 }
 
 .color1 {
@@ -38,4 +39,26 @@ canvas {
     height: 100px; 
     position: absolute; 
     border-radius: 50%;
+  }
+
+.score {
+    position: relative;
+    top: 5%;
+    left: 5%;
+    z-index: 3;
+}
+
+.losing-text {
+    font-size: 2em;
+    z-index: 3;
+    white-space: pre;
+}
+
+  .center {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
   }

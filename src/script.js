@@ -1,37 +1,3 @@
-// "use strict";
-// //location.reload(true);
-
-// // Background Color
-// const color1 = document.querySelector(".color1");
-// color1.addEventListener('change', colorModified1);
-
-// function colorModified1(event) {
-//     // const cur_gCO = ctx.globalCompositeOperation
-//     // ctx.globalCompositeOperation = 'destination-over'
-//     // ctx.fillStyle = event.target.value;
-//     // ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-//     // ctx.globalCompositeOperation = cur_gCO
-//     canvasElement.style["background-color"] = event.target.value
-// }
-
-// // Pen color
-// const color2 = document.querySelector(".color2");
-// color2.addEventListener('change', colorModified2);
-// let cur_color = "#000000";
-
-// function colorModified2(event) {
-//     ctx.strokeStyle = event.target.value
-// }
-
-// // width bar
-// const width = document.querySelector("#width");
-// let cur_width = 5;
-// width.addEventListener('change', widthModified);
-
-// function widthModified(event) {
-//     cur_width = event.target.value / 5;
-// }
-
 //Mouse
 const canvasElement = document.querySelector('#canvas-overlay');
 const ctx = canvasElement.getContext('2d');
@@ -47,6 +13,7 @@ let is_down = 0;
 let cur_x = 0;
 let cur_y = 0;
 let cur_width = 5;
+let on_drag = 0;
 
 canvasElement.addEventListener('mousedown', mouseDown);
 canvasElement.addEventListener('mouseup', mouseUp);
@@ -94,12 +61,23 @@ function mouseUp(event) {
         display.src = im
         document.body.append(display)
     }
-    hidden_ctx.clearRect(0, 0, hidden_ctx.canvas.width, hidden_ctx.canvas.height);
+    let circleElements = document.querySelectorAll('.circle');
+    if (circleElements.length > 0 && on_drag) {
+        let container = document.querySelector(".container-canvas")
+        container.removeChild(circleElements[0])
+        hidden_ctx.clearRect(0, 0, hidden_ctx.canvas.width, hidden_ctx.canvas.height);
+
+        let score = document.querySelector(".score")
+        score.textContent = parseInt(score.textContent, 10) + 1
+    }
+    
     fadeOut()
+    on_drag = 0
 }
 
 function mouseMove(event) {
     if (is_down) {
+        on_drag = 1
         //ctx.moveTo(cur_x,cur_y);
         ctx.lineTo(event.offsetX, event.offsetY)
         ctx.stroke()
@@ -115,25 +93,27 @@ function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-const radius = 50;  // Radius of the circle
+const RADIUS = 50;  // Radius of the circle
 let y = 0;          // height (/vertical) of the circle within the viewport
 let circleArray = []
 let start_button = document.querySelector(".start-button")
+let animationId;
+let intervalId
 start_button.addEventListener('click', startGame);
 
 function startGame(event) {
-    setInterval(createCircle, 2000)
-    requestAnimationFrame( frame )
+    intervalId = setInterval(createCircle, 500)
+    animationId = requestAnimationFrame( frame )
 }
 
 function createCircle(event) {
-  const x = randomInteger(0, ctx.canvas.width);
+  const x = randomInteger(RADIUS, ctx.canvas.width - RADIUS);
   const y = 0;
   let circle = document.createElement('div')
   circle.setAttribute('id', circleArray.length)
   circle.classList.add('circle')
   circle.style.top = `${y}px`;
-  circle.style.left = `${x-radius}px`;
+  circle.style.left = `${x-RADIUS}px`;
   circle.style.zIndex = '2';
   container = document.querySelector(".container-canvas")
   container.appendChild(circle);
@@ -141,17 +121,33 @@ function createCircle(event) {
   circleArray.push(circle)
 }
 
-
 function frame(currentTime) {
     let circleElements = document.querySelectorAll('.circle');
-    for (circle of circleElements) {
+    //console.log(circleElements.length)
+    let canceled = 0;
+    for (let circle of circleElements) {
         let curY = circle.style.top.replace(/\D/g, "");
-        if (parseInt(curY) + 2*radius > ctx.canvas.height) {
+        if (parseInt(curY) + 2*RADIUS > ctx.canvas.height) {
             container = document.querySelector(".container-canvas")
             container.removeChild(circle);
+            window.cancelAnimationFrame(animationId)
+            clearInterval(intervalId);
+            canceled = 1
+
+            losingText = document.createElement("div")
+            losingText.textContent = `YOU LOSE\r\nFinal Score: ${document.querySelector(".score").textContent}`
+            losingText.classList.add("losing-text")
+            losingText.classList.add("center")
+            container.appendChild(losingText)
+
+            canvasElement.removeEventListener('mousedown', mouseDown);
+            canvasElement.removeEventListener('mouseup', mouseUp);
+            canvasElement.removeEventListener('mousemove', mouseMove);
             break
         }
         circle.style.top = `${parseInt(curY)+2}px`;
     }
-    requestAnimationFrame( frame )
+    if (canceled)
+        return
+    animationId = requestAnimationFrame( frame )
 }
