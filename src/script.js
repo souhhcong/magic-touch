@@ -32,50 +32,69 @@
 //     cur_width = event.target.value / 5;
 // }
 
+/*
+const tesseract = require("Tesseract.js");
+*/
+
 //Mouse
 const canvasElement = document.querySelector('#canvas-overlay');
 const ctx = canvasElement.getContext('2d');
-ctx.canvas.width = 800;
-ctx.canvas.height = 600;
+ctx.canvas.width  = 0.8 * window.innerWidth;
+ctx.canvas.height = 0.8 * window.innerHeight;
 
 const hiddenCanvasElement = document.querySelector('#canvas-hidden');
 const hidden_ctx = hiddenCanvasElement.getContext('2d');
-hidden_ctx.canvas.width = 800;
-hidden_ctx.canvas.height = 600;
+hidden_ctx.canvas.width  = ctx.canvas.width;
+hidden_ctx.canvas.height = ctx.canvas.height;
 
-let is_down = 0;
-let cur_x = 0;
-let cur_y = 0;
-let cur_width = 5;
+
 
 canvasElement.addEventListener('mousedown', mouseDown);
-canvasElement.addEventListener('mouseup', mouseUp);
 canvasElement.addEventListener('mousemove', mouseMove);
-//canvasElement.addEventListener('mouseout', mouseUp);
+canvasElement.addEventListener('mouseup', mouseUp);
+canvasElement.addEventListener('mouseout', mouseUp);
+
 let images = []
 
-function fadeOut() {
-    let cnt = 0
-    let curTimeOut = 0
-    function run () {
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
+//  create fade out effect for the finished drawing
+function fadeOut()  {
+    let itr = 0;
+    function run()  {
+        ctx.fillStyle = "rgba(255,255,255,0.25)";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        cnt++;
-        if (cnt >= 8) {return}
-        curTimeOut = setTimeout(run,200);
+        itr++;
+
+        if (itr >= 20)
+            return;
+        setTimeout(run, 25);
     }
-    curTimeOut = setTimeout(run,200);
+    setTimeout(run, 25);
 }
 
-function mouseDown(event) {
+let is_down = 0;
+let cur_width = 5;
+
+var rect = canvasElement.getBoundingClientRect();
+
+function mouseDown(event)   {
     is_down = 1;
-    cur_x = event.offsetX;
-    cur_y = event.offsetY;
+
     ctx.beginPath();
     ctx.lineWidth = cur_width;
 
     hidden_ctx.beginPath();
     hidden_ctx.lineWidth = cur_width;
+}
+function mouseMove(event)   {
+    if (is_down) {
+        let cur_x = event.offsetX;
+        let cur_y = event.offsetY;
+
+        ctx.lineTo(cur_x, cur_y);
+        ctx.stroke()
+        hidden_ctx.lineTo(cur_x, cur_y);
+        hidden_ctx.stroke()
+    }
 }
 
 function mouseUp(event) {
@@ -83,37 +102,34 @@ function mouseUp(event) {
     ctx.closePath();
     hidden_ctx.closePath();
     let image = hiddenCanvasElement.toDataURL("image/png").replace("image/png", "image/octet-stream");
-    //console.log(image)
+    // console.log(image)
     // if (!localStorage.images)
-    //     localStorage.images = [];
-    images.push(image);
-    console.log(images)
-    for (im of images) {
-        display = document.createElement("img")
-        display.display = "block"
-        display.src = im
-        document.body.append(display)
-    }
+    //      localStorage.images = [];
+    // images.push(image);
+    // console.log(images)
+    // for (im of images) {
+    //     display = document.createElement("img")
+    //     display.display = "block"
+    //     display.src = im
+    //     document.body.append(display)
+    // }
+    // tesseract.recognize(
+    //     image,
+    //     'eng',
+    //     { logger: m => console.log(m) }
+    //     ).then(({ data: { text } }) => {
+    //         console.log(text);
+    //     })
     hidden_ctx.clearRect(0, 0, hidden_ctx.canvas.width, hidden_ctx.canvas.height);
-    fadeOut()
+    fadeOut();
 }
 
-function mouseMove(event) {
-    if (is_down) {
-        //ctx.moveTo(cur_x,cur_y);
-        ctx.lineTo(event.offsetX, event.offsetY)
-        ctx.stroke()
-        hidden_ctx.lineTo(event.offsetX, event.offsetY)
-        hidden_ctx.stroke()
-        cur_x = event.offsetX
-        cur_y = event.offsetY
-    }
-}
+
 
 
 function randomInteger(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+}
 
 const radius = 50;  // Radius of the circle
 let y = 0;          // height (/vertical) of the circle within the viewport
@@ -126,32 +142,32 @@ function startGame(event) {
     requestAnimationFrame( frame )
 }
 
-function createCircle(event) {
-  const x = randomInteger(0, ctx.canvas.width);
-  const y = 0;
-  let circle = document.createElement('div')
-  circle.setAttribute('id', circleArray.length)
-  circle.classList.add('circle')
-  circle.style.top = `${y}px`;
-  circle.style.left = `${x-radius}px`;
-  circle.style.zIndex = '2';
-  container = document.querySelector(".container-canvas")
-  container.appendChild(circle);
+// function createCircle(event) {
+//     const x = randomInteger(0, ctx.canvas.width);
+//     const y = 0;
+//     let circle = document.createElement('div')
+//     circle.setAttribute('id', circleArray.length)
+//     circle.classList.add('circle')
+//     circle.style.top = `${y}px`;
+//     circle.style.left = `${x-radius}px`;
+//     circle.style.zIndex = '2';
+//     let container = document.querySelector(".container-canvas");
+//     container.appendChild(circle);
 
-  circleArray.push(circle)
-}
+//     circleArray.push(circle)
+// }
 
 
-function frame(currentTime) {
-    let circleElements = document.querySelectorAll('.circle');
-    for (circle of circleElements) {
-        let curY = circle.style.top.replace(/\D/g, "");
-        if (parseInt(curY) + 2*radius > ctx.canvas.height) {
-            container = document.querySelector(".container-canvas")
-            container.removeChild(circle);
-            break
-        }
-        circle.style.top = `${parseInt(curY)+2}px`;
-    }
-    requestAnimationFrame( frame )
-}
+// function frame(currentTime) {
+//     let circleElements = document.querySelectorAll('.circle');
+//     for (let circle of circleElements) {
+//         let curY = circle.style.top.replace(/\D/g, "");
+//         if (parseInt(curY) + 2*radius > ctx.canvas.height) {
+//             let container = document.querySelector(".container-canvas")
+//             container.removeChild(circle);
+//             break
+//         }
+//         circle.style.top = `${parseInt(curY)+2}px`;
+//     }
+//     requestAnimationFrame( frame )
+// }
