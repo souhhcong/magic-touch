@@ -36,7 +36,7 @@
 const tesseract = require("Tesseract.js");
 */
 
-//Mouse
+//  Selecting drawing board
 const canvasElement = document.querySelector('#canvas-overlay');
 const ctx = canvasElement.getContext('2d');
 ctx.canvas.width  = 0.8 * window.innerWidth;
@@ -47,7 +47,7 @@ const hidden_ctx = hiddenCanvasElement.getContext('2d');
 hidden_ctx.canvas.width  = ctx.canvas.width;
 hidden_ctx.canvas.height = ctx.canvas.height;
 
-
+//  Mouse
 
 canvasElement.addEventListener('mousedown', mouseDown);
 canvasElement.addEventListener('mousemove', mouseMove);
@@ -127,47 +127,82 @@ function mouseUp(event) {
 
 
 
-function randomInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-const radius = 50;  // Radius of the circle
-let y = 0;          // height (/vertical) of the circle within the viewport
-let circleArray = []
-let start_button = document.querySelector(".start-button")
-start_button.addEventListener('click', startGame);
-
-function startGame(event) {
-    setInterval(createCircle, 2000)
-    requestAnimationFrame( frame )
-}
-
-// function createCircle(event) {
-//     const x = randomInteger(0, ctx.canvas.width);
-//     const y = 0;
-//     let circle = document.createElement('div')
-//     circle.setAttribute('id', circleArray.length)
-//     circle.classList.add('circle')
-//     circle.style.top = `${y}px`;
-//     circle.style.left = `${x-radius}px`;
-//     circle.style.zIndex = '2';
-//     let container = document.querySelector(".container-canvas");
-//     container.appendChild(circle);
-
-//     circleArray.push(circle)
+// function randomInteger(min, max) {
+//     return Math.floor(Math.random() * (max - min + 1)) + min;
 // }
 
+// const RADIUS = 50;  // Radius of the circle
+// let y = 0;          // height (/vertical) of the circle within the viewport
+// let circleArray = []
+// let start_button = document.querySelector(".start-button")
+// let animationId;
+// let intervalId
+// start_button.addEventListener('click', startGame);
+
+// function startGame(event) {
+//     intervalId = setInterval(createCircle, 500)
+//     animationId = requestAnimationFrame( frame )
+// }
+
+// function randomInteger(min, max) {
+//     return Math.floor(Math.random() * (max - min + 1)) + min;
+//   }
+
+// const RADIUS = 50;  // Radius of the circle
+// let y = 0;          // height (/vertical) of the circle within the viewport
+// let circleArray = []
+// let start_button = document.querySelector(".start-button")
+// let animationId;
+// let intervalId
+// start_button.addEventListener('click', startGame);
+
+// function startGame(event) {
+//     intervalId = setInterval(createCircle, 500)
+//     animationId = requestAnimationFrame( frame )
+// }
+
+// function createCircle(event) {
+//   const x = randomInteger(RADIUS, ctx.canvas.width - RADIUS);
+//   const y = 0;
+//   let circle = document.createElement('div')
+//   circle.setAttribute('id', circleArray.length)
+//   circle.classList.add('circle')
+//   circle.style.top = `${y}px`;
+//   circle.style.left = `${x-RADIUS}px`;
+//   circle.style.zIndex = '2';
+//   container = document.querySelector(".container-canvas")
+//   container.appendChild(circle);
+
+//   circleArray.push(circle)
+// }
 
 // function frame(currentTime) {
 //     let circleElements = document.querySelectorAll('.circle');
+//     //console.log(circleElements.length)
+//     let canceled = 0;
 //     for (let circle of circleElements) {
 //         let curY = circle.style.top.replace(/\D/g, "");
-//         if (parseInt(curY) + 2*radius > ctx.canvas.height) {
-//             let container = document.querySelector(".container-canvas")
+//         if (parseInt(curY) + 2*RADIUS > ctx.canvas.height) {
+//             container = document.querySelector(".container-canvas")
 //             container.removeChild(circle);
+//             window.cancelAnimationFrame(animationId)
+//             clearInterval(intervalId);
+//             canceled = 1
+
+//             losingText = document.createElement("div")
+//             losingText.textContent = `YOU LOSE\r\nFinal Score: ${document.querySelector(".score").textContent}`
+//             losingText.classList.add("losing-text")
+//             losingText.classList.add("center")
+//             container.appendChild(losingText)
+
+//             canvasElement.removeEventListener('mousedown', mouseDown);
+//             canvasElement.removeEventListener('mouseup', mouseUp);
+//             canvasElement.removeEventListener('mousemove', mouseMove);
 //             break
 //         }
 //         circle.style.top = `${parseInt(curY)+2}px`;
 //     }
-//     requestAnimationFrame( frame )
+//     if (canceled)
+//         return
+//     animationId = requestAnimationFrame( frame )
 // }
