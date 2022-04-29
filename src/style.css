@@ -1,60 +1,152 @@
-.start-button {
-    width: 100px;
-    height: 20px;
-    background-color: lightgray;
+body{
+	color: #111111;
+	font-family: 'Montserrat', sans-serif;
+	align-items: center;
 }
 
-.color1 {
-    color: black;
+div{
+	width: 300px;
+	height: 300px;
+	margin: 15px 20px;
+	float: left;
+}
+button	{
+	font-size: 32px;
+	font-family: inherit;
+	font-weight: 10000;
+	text-transform: uppercase;
+	text-align: center;
+	align-items: center;
+
+	color: white;
+
+	width: 60px;
+	height: 60px;
+
+	border: none;
+	border-radius: 10px;
+	box-shadow: 0 6px #006666;
+
+	background-color: #00FFFF;
+	/* transition-duration: 0.4s; */
+
+	z-index: 10;
+}
+button:hover	{
+	background-color: #00AAAA;
+}
+button:active	{
+	background-color: #00AAAA;
+	box-shadow: 0 2px #666;
+	transform: translateY(4px);
 }
 
-.container-canvas {
-    width: 850px;
-    height: 650px;
-    position: relative;
-    display: block;
+/*	an element which help blocking all the access to the underlay canvas (game-canvas and draw-canvas)	*/
+.overlay	{
+    opacity: 0.8;
+    background-color: #FFF;
+    position: fixed;
+    width:  100%;
+    height: 100%;
+	margin: auto;
+
+    z-index: 99;
 }
 
-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 600px;
-    width: 800px; 
-    border: 5px solid black;
+/*	the next 3 items are about the game canvas	*/
+.game-canvas-container	{
+	width: 75%;
+	height: 95%;
+
+	position: fixed;
+
+	left: 0;
+	bottom: 0;
+
+	margin-bottom: 1%;
+	margin-left: 1%;
+}
+#game-canvas {
+	position: absolute;
+	bottom: 0;
+	margin: 0;
+
+	width: 100%;
+	height: 100%;
+
+	border: solid black 2px;
+	border-radius: 5px;
+}
+#pause {
+	position: absolute;
+	right: 0;
+	margin-right: 1%;
+	margin-top: 1%;
 }
 
-#canvas-overlay {
-    z-index: 1;
+/**/
+#draw-canvas	{
+	background-color: #FFFFFF;
+
+	width: 22%;
+
+	border: 2px solid black;
+	border-radius: 5px;
+
+	cursor: pointer;
+
+	position: fixed;
+
+	bottom: 0;
+	right: 0;
+
+	margin-bottom: 1%;
+	margin-right: 1%;
+}
+#small-canvas{
+	display: none;
+}
+#draw-canvas:after	{
+	padding-bottom: 100%;
 }
 
-#canvas-hidden {
-    visibility: hidden;
-    z-index: 0;
+#score {
+	position: fixed;
+	top: 30%;
+	right: 5%;
+	background-color: grey;
+
+	width: 10%;
+	height: 10%;
+	text-align: center;
+	font-size: 4em;
+	color: white;
+
+	border: 2px solid black;
+	border-radius: 5px
 }
 
-.circle {
-    background-color:cyan; 
-    width: 100px; 
-    height: 100px; 
-    position: absolute; 
-    border-radius: 50%;
-  }
+.dashboard	{
+	position: absolute;
+	z-index: 100;
 
-.score {
-    position: relative;
-    top: 5%;
-    left: 5%;
-    z-index: 3;
+	width: 20%;
+	height: 20%;
+
+    top: 50%;
+    left: 35%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+	border: 2px solid black;
+	border-radius: 5px;
+	padding: 10px;
+
+	display: flex;
+    justify-content: center;
 }
 
-.losing-text {
-    font-size: 2em;
-    z-index: 3;
-    white-space: pre;
-}
-
-  .center {
+.center {
     margin: 0;
     position: absolute;
     top: 50%;

@@ -1,153 +1,86 @@
-//Mouse
-const canvasElement = document.querySelector('#canvas-overlay');
-const ctx = canvasElement.getContext('2d');
-ctx.canvas.width = 800;
-ctx.canvas.height = 600;
+let score = 0;
+let level = () =>   {   return  Math.floor(score / 5);  }
 
-const hiddenCanvasElement = document.querySelector('#canvas-hidden');
-const hidden_ctx = hiddenCanvasElement.getContext('2d');
-hidden_ctx.canvas.width = 800;
-hidden_ctx.canvas.height = 600;
+let interval_genRocket = null;
+let velocity_genRocket = null;
+const interval_genRocket_threshold = 200;
 
-let is_down = 0;
-let cur_x = 0;
-let cur_y = 0;
-let cur_width = 5;
-let on_drag = 0;
+function GameStart(mode)    {
+    rockets = [];
+    score = 0;
+    isPaused = 0;
 
-canvasElement.addEventListener('mousedown', mouseDown);
-canvasElement.addEventListener('mouseup', mouseUp);
-canvasElement.addEventListener('mousemove', mouseMove);
-//canvasElement.addEventListener('mouseout', mouseUp);
-let images = []
-
-function fadeOut() {
-    let cnt = 0
-    let curTimeOut = 0
-    function run () {
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        cnt++;
-        if (cnt >= 8) {return}
-        curTimeOut = setTimeout(run,200);
-    }
-    curTimeOut = setTimeout(run,200);
-}
-
-function mouseDown(event) {
-    is_down = 1;
-    cur_x = event.offsetX;
-    cur_y = event.offsetY;
-    ctx.beginPath();
-    ctx.lineWidth = cur_width;
-
-    hidden_ctx.beginPath();
-    hidden_ctx.lineWidth = cur_width;
-}
-
-function mouseUp(event) {
-    is_down = 0;
-    ctx.closePath();
-    hidden_ctx.closePath();
-    let image = hiddenCanvasElement.toDataURL("image/png").replace("image/png", "image/octet-stream");
-    //console.log(image)
-    // if (!localStorage.images)
-    //     localStorage.images = [];
-    images.push(image);
-    console.log(images)
-    for (im of images) {
-        display = document.createElement("img")
-        display.display = "block"
-        display.src = im
-        document.body.append(display)
-    }
-    let circleElements = document.querySelectorAll('.circle');
-    if (circleElements.length > 0 && on_drag) {
-        let container = document.querySelector(".container-canvas")
-        container.removeChild(circleElements[0])
-        hidden_ctx.clearRect(0, 0, hidden_ctx.canvas.width, hidden_ctx.canvas.height);
-
-        let score = document.querySelector(".score")
-        score.textContent = parseInt(score.textContent, 10) + 1
-    }
+    for(let i = 0 ; i < 10 ; ++i)
+        rockets.push([]);
     
-    fadeOut()
-    on_drag = 0
+    interval_genRocket = (mode == 'Classic') ? 2000 : 1500;
+    velocity_genRocket = (mode == 'Classic') ? 40 : 60;
 }
+function GameLose() {
+    function explode(idx_explosion = 0) {
+        if (idx_explosion > 19)
+            return;
+        
+        game_ctx.clearRect(0, 0, game_canvas.width, game_canvas.height);
+        
+        render_Sky();
+        render_City();
+        render_mushroom_explosion(idx_explosion);
+        render_Grass();
 
-function mouseMove(event) {
-    if (is_down) {
-        on_drag = 1
-        //ctx.moveTo(cur_x,cur_y);
-        ctx.lineTo(event.offsetX, event.offsetY)
-        ctx.stroke()
-        hidden_ctx.lineTo(event.offsetX, event.offsetY)
-        hidden_ctx.stroke()
-        cur_x = event.offsetX
-        cur_y = event.offsetY
+        game_ctx.fillStyle = `rgba(255,0,0,${0.02 * idx_explosion})`;
+        game_ctx.fillRect(0, 0, game_canvas.width, game_canvas.height);
+        
+        setTimeout(() =>    {
+            window.requestAnimationFrame(() =>  {
+                explode(idx_explosion + 1);
+            });
+        }, 75);
+
+        // game_canvas_container = document.querySelector(".game-canvas.container")
+        // game_canvas_c
+        // setTimeout(() => {
+        //     explode(idx_explosion + 1);
+        // }, 75);
     }
+    explode();
 }
+let time_elapsed = 0;
+let time_mock = null;
 
+function gameRender()   {
+    if (isPaused)   return;
+    game_canvas_setup();
 
-function randomInteger(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-  }
+    let cur_time = Date.now();
+    let cur_interval = Math.max(interval_genRocket - velocity_genRocket * level(), interval_genRocket_threshold);
 
-const RADIUS = 50;  // Radius of the circle
-let y = 0;          // height (/vertical) of the circle within the viewport
-let circleArray = []
-let start_button = document.querySelector(".start-button")
-let animationId;
-let intervalId
-start_button.addEventListener('click', startGame);
+    time_elapsed += cur_time - time_mock;
+    time_mock = cur_time;
 
-function startGame(event) {
-    intervalId = setInterval(createCircle, 500)
-    animationId = requestAnimationFrame( frame )
-}
-
-function createCircle(event) {
-  const x = randomInteger(RADIUS, ctx.canvas.width - RADIUS);
-  const y = 0;
-  let circle = document.createElement('div')
-  circle.setAttribute('id', circleArray.length)
-  circle.classList.add('circle')
-  circle.style.top = `${y}px`;
-  circle.style.left = `${x-RADIUS}px`;
-  circle.style.zIndex = '2';
-  container = document.querySelector(".container-canvas")
-  container.appendChild(circle);
-
-  circleArray.push(circle)
-}
-
-function frame(currentTime) {
-    let circleElements = document.querySelectorAll('.circle');
-    //console.log(circleElements.length)
-    let canceled = 0;
-    for (let circle of circleElements) {
-        let curY = circle.style.top.replace(/\D/g, "");
-        if (parseInt(curY) + 2*RADIUS > ctx.canvas.height) {
-            container = document.querySelector(".container-canvas")
-            container.removeChild(circle);
-            window.cancelAnimationFrame(animationId)
-            clearInterval(intervalId);
-            canceled = 1
-
-            losingText = document.createElement("div")
-            losingText.textContent = `YOU LOSE\r\nFinal Score: ${document.querySelector(".score").textContent}`
-            losingText.classList.add("losing-text")
-            losingText.classList.add("center")
-            container.appendChild(losingText)
-
-            canvasElement.removeEventListener('mousedown', mouseDown);
-            canvasElement.removeEventListener('mouseup', mouseUp);
-            canvasElement.removeEventListener('mousemove', mouseMove);
-            break
-        }
-        circle.style.top = `${parseInt(curY)+2}px`;
+    if (time_elapsed > cur_interval)    {
+        time_elapsed = 0;
+        genRocket();
     }
-    if (canceled)
-        return
-    animationId = requestAnimationFrame( frame )
+    game_ctx.clearRect(0, 0, game_canvas.width, game_canvas.height);
+
+    render_Sky();
+    render_City();
+    move_Rockets();
+
+
+    if (render_Rockets())   {
+        render_Grass();
+        //window.requestAnimationFrame(gameRender);
+        setTimeout(gameRender, 25);
+    }
+    else
+        GameLose();
 }
+function Game(mode) {
+    time_mock = Date.now() - 2000;
+
+    GameStart(mode);
+    gameRender();
+}
+Game('Classic');
